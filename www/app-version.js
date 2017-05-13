@@ -36,6 +36,10 @@ var RareloopAppVersion = function () {
     this.version = null;
     this.build = null;
     this.available = false;
+    this.webview_version = null;
+    this.webview_build = null;
+    this.jpos_version = null;
+    this.jpos_build = null;
 
     var _this = this;
 
@@ -45,6 +49,10 @@ var RareloopAppVersion = function () {
 
             _this.version = info.version;
             _this.build = parseInt(info.build, 10);
+            _this.webview_version = info.webview_version;
+            _this.webview_build = parseInt(info.webview_build, 10);
+            _this.jpos_version = info.jpos_version;
+            _this.jpos_build = parseInt(info.jpos_build, 10);
 
             channel.onCordovaAppVersionReady.fire();
         },function(e) {

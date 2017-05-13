@@ -28,4 +28,8 @@ After `deviceReady` has fired you'll be able to access a new object in the globa
 ```javascript
 console.log(AppVersion.version); // e.g. "1.2.3"
 console.log(AppVersion.build); // e.g. 1234
+console.log(AppVersion.webview_version); // e.g. "1.2.3"
+console.log(AppVersion.webview_build); // e.g. 1234
+console.log(AppVersion.jpos_version); // e.g. "1.2.3"
+console.log(AppVersion.jpos_build); // e.g. 1234
 ```

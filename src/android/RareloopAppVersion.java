@@ -31,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.PackageManager;
 
@@ -59,15 +60,12 @@ public class RareloopAppVersion extends CordovaPlugin {
          * appVersion
          */
         if (action.equals("getAppVersion")) {
-
             try {            
-                PackageManager packageManager = this.cordova.getActivity().getPackageManager();
-
-                JSONObject r = new JSONObject();
-                r.put("version", packageManager.getPackageInfo(this.cordova.getActivity().getPackageName(), 0).versionName);
-                r.put("build", packageManager.getPackageInfo(this.cordova.getActivity().getPackageName(), 0).versionCode);
-
-                callbackContext.success(r);
+				JSONObject response = new JSONObject();
+				response = extractVersionInfoIntoJson(response);
+				response = extractVersionInfoIntoJson("com.google.android.webview", response);
+				response = extractVersionInfoIntoJson("asia.sharelike.jpos", response);
+                callbackContext.success(response);
             } catch (NameNotFoundException e) {
                 callbackContext.error("Exception thrown");
             }
@@ -78,4 +76,46 @@ public class RareloopAppVersion extends CordovaPlugin {
         // Default response to say the action hasn't been handled
         return false;
     }
+
+	private JSONObject extractVersionInfoIntoJson(JSONObject attachJsonObject) throws NameNotFoundException {
+		PackageManager packageManager = this.cordova.getActivity().getPackageManager();
+		String packName = this.cordova.getActivity().getPackageName();
+		System.out.println("packName: " + packName);
+		PackageInfo packInfoTmp = new PackageInfo();
+		try {
+			packInfoTmp = packageManager.getPackageInfo(packName, 0);
+		} catch (NameNotFoundException e) {
+			packInfoTmp.versionName = "9999.0.0";
+			packInfoTmp.versionCode = 999999999;
+		}
+
+		try {
+			attachJsonObject.put("version", packInfoTmp.versionName);
+			attachJsonObject.put("build", packInfoTmp.versionCode);
+		} catch(Exception e) {
+			throw new NameNotFoundException();
+		}
+		return attachJsonObject;
+	}
+
+	private JSONObject extractVersionInfoIntoJson(String packName, JSONObject attachJsonObject) throws NameNotFoundException {
+		String[] splitedPackName = packName.split("\\.");
+		String appName = splitedPackName[splitedPackName.length - 1];
+		PackageManager packageManager = this.cordova.getActivity().getPackageManager();
+		PackageInfo packInfoTmp = new PackageInfo();
+		try {
+			packInfoTmp = packageManager.getPackageInfo(packName, 0);
+		} catch (NameNotFoundException e) {
+			packInfoTmp.versionName = "9999.0.0";
+			packInfoTmp.versionCode = 999999999;
+		}
+		try {
+			attachJsonObject.put(appName + "_version", packInfoTmp.versionName);
+			attachJsonObject.put(appName + "_build", packInfoTmp.versionCode);
+		} catch(Exception e) {
+			throw new NameNotFoundException();
+		}
+		return attachJsonObject;
+	}
 }
+
