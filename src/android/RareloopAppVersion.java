@@ -60,16 +60,11 @@ public class RareloopAppVersion extends CordovaPlugin {
          * appVersion
          */
         if (action.equals("getAppVersion")) {
-            try {            
-				JSONObject response = new JSONObject();
-				response = extractVersionInfoIntoJson(response);
-				response = extractVersionInfoIntoJson("com.google.android.webview", response);
-				response = extractVersionInfoIntoJson("asia.sharelike.jpos", response);
-                callbackContext.success(response);
-            } catch (NameNotFoundException e) {
-                callbackContext.error("Exception thrown");
-            }
-
+            JSONObject response = new JSONObject();
+            response = extractVersionInfoIntoJson(response);
+            response = extractVersionInfoIntoJson("com.google.android.webview", response);
+            response = extractVersionInfoIntoJson("asia.sharelike.jpos", response);
+            callbackContext.success(response);
             return true;
         }
 
@@ -77,45 +72,37 @@ public class RareloopAppVersion extends CordovaPlugin {
         return false;
     }
 
-	private JSONObject extractVersionInfoIntoJson(JSONObject attachJsonObject) throws NameNotFoundException {
-		PackageManager packageManager = this.cordova.getActivity().getPackageManager();
-		String packName = this.cordova.getActivity().getPackageName();
-		System.out.println("packName: " + packName);
-		PackageInfo packInfoTmp = new PackageInfo();
-		try {
-			packInfoTmp = packageManager.getPackageInfo(packName, 0);
-		} catch (NameNotFoundException e) {
-			packInfoTmp.versionName = "9999.0.0";
-			packInfoTmp.versionCode = 999999999;
-		}
+    private JSONObject extractVersionInfoIntoJson(JSONObject attachJsonObject) {
+        PackageManager packageManager = this.cordova.getActivity().getPackageManager();
+        String packName = this.cordova.getActivity().getPackageName();
+        PackageInfo packInfoTmp = new PackageInfo();
+        try {
+            packInfoTmp = packageManager.getPackageInfo(packName, 0);
+            attachJsonObject.put("version", packInfoTmp.versionName);
+            attachJsonObject.put("build", packInfoTmp.versionCode);
+        } catch (NameNotFoundException e) {
+            System.out.println("Exception thrown: NameNotFoundException: " + packName + ": " + e.toString());
+        } catch (JSONException e) {
+            System.out.println("Exception thrown: JSONException: " + packName + ": " + e.toString());
+        }
+        return attachJsonObject;
+    }
 
-		try {
-			attachJsonObject.put("version", packInfoTmp.versionName);
-			attachJsonObject.put("build", packInfoTmp.versionCode);
-		} catch(Exception e) {
-			throw new NameNotFoundException();
-		}
-		return attachJsonObject;
-	}
-
-	private JSONObject extractVersionInfoIntoJson(String packName, JSONObject attachJsonObject) throws NameNotFoundException {
-		String[] splitedPackName = packName.split("\\.");
-		String appName = splitedPackName[splitedPackName.length - 1];
-		PackageManager packageManager = this.cordova.getActivity().getPackageManager();
-		PackageInfo packInfoTmp = new PackageInfo();
-		try {
-			packInfoTmp = packageManager.getPackageInfo(packName, 0);
-		} catch (NameNotFoundException e) {
-			packInfoTmp.versionName = "9999.0.0";
-			packInfoTmp.versionCode = 999999999;
-		}
-		try {
-			attachJsonObject.put(appName + "_version", packInfoTmp.versionName);
-			attachJsonObject.put(appName + "_build", packInfoTmp.versionCode);
-		} catch(Exception e) {
-			throw new NameNotFoundException();
-		}
-		return attachJsonObject;
-	}
+    private JSONObject extractVersionInfoIntoJson(String packName, JSONObject attachJsonObject) {
+        String[] splitedPackName = packName.split("\\.");
+        String appName = splitedPackName[splitedPackName.length - 1];
+        PackageManager packageManager = this.cordova.getActivity().getPackageManager();
+        PackageInfo packInfoTmp = new PackageInfo();
+        try {
+            packInfoTmp = packageManager.getPackageInfo(packName, 0);
+            attachJsonObject.put(appName + "_version", packInfoTmp.versionName);
+            attachJsonObject.put(appName + "_build", packInfoTmp.versionCode);
+        } catch (NameNotFoundException e) {
+            System.out.println("Exception thrown: NameNotFoundException: " + packName + ": " + e.toString());
+        } catch (JSONException e) {
+            System.out.println("Exception thrown: JSONException: " + packName + ": " + e.toString());
+        }
+        return attachJsonObject;
+    }
 }
 
